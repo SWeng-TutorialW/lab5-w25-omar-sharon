@@ -1,7 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import org.greenrobot.eventbus.EventBus;
-
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
 
@@ -14,49 +13,32 @@ public class SimpleClient extends AbstractClient {
 
 	private SimpleClient(String host, int port) {
 		super(host, port);
+		Game.getGame();
 	}
 
 	@Override
-	protected void handleMessageFromServer(Object msg) {
-		if (msg.getClass().equals(Warning.class)) {
-			EventBus.getDefault().post(new WarningEvent((Warning) msg));
-		}
-		else if (msg.toString().startsWith("Start")) {
-			try {
-				SecondaryController.switchTogame();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else if (msg.toString().startsWith("Player")) {
-			String msg2 = msg.toString().substring(0,14);
-			int row = Character.getNumericValue(msg.toString().charAt(14)); // e.g., button00 -> 0
-			int col = Character.getNumericValue(msg.toString().charAt(15)); // e.g., button00 -> 0
-			String operation = msg.toString().charAt(7)+"";
-			Game.getGame().setGame(row, col, operation);
-			Game.getGame().disableBoard(msg2);
-		} else if (msg.toString().startsWith("It's a Draw!")) {
-			String msg2 = msg.toString().substring(0,12);
-			int row = Character.getNumericValue(msg.toString().charAt(12)); // e.g., button00 -> 0
-			int col = Character.getNumericValue(msg.toString().charAt(13)); // e.g., button00 -> 0
-			String operation = msg.toString().charAt(14)+"";
-			Game.getGame().setGame(row, col, operation);
-			Game.getGame().disableBoard(msg2);
-		}
-		else {
-			int row = Character.getNumericValue(msg.toString().charAt(0)); // e.g., button00 -> 0
-			int col = Character.getNumericValue(msg.toString().charAt(1)); // e.g., button00 -> 0
-			String operation = msg.toString().charAt(2)+"";
-			Game.getGame().setGame(row, col, operation);
-			return;
+	protected void handleMessageFromServer(Object msg) throws IOException {
+		System.out.println(msg.toString());
+
+		if (msg instanceof Warning) {
+			EventBus.getDefault().post(msg); // Post the Warning directly
+		} else if (msg.toString().startsWith("Start")) {
+			SecondaryController.switchTogame();
+			EventBus.getDefault().post("StartGame");
+		} else if (msg.toString().startsWith("Player") || msg.toString().equals("X") || msg.toString().equals("O")) {
+			EventBus.getDefault().post(msg); // Post status updates directly
+		} else {
+			int row = Character.getNumericValue(msg.toString().charAt(0));
+			int col = Character.getNumericValue(msg.toString().charAt(1));
+			String operation = msg.toString().substring(2);
+			EventBus.getDefault().post(new Object[] { row, col, operation }); // Send board updates
 		}
 	}
-	
+
 	public static SimpleClient getClient() {
 		if (client == null) {
 			client = new SimpleClient(ip, port);
 		}
 		return client;
 	}
-
 }

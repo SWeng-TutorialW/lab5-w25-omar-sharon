@@ -62,31 +62,39 @@ public class SimpleServer extends AbstractServer {
 				return ;
 			}
 		} else{
-			int row = Character.getNumericValue(msgString.charAt(0)); // e.g., button00 -> 0
-			int col = Character.getNumericValue(msgString.charAt(1)); // e.g., button00 -> 0
-			// If the button is already clicked, do nothing
+			System.out.format(msgString+"\n");
+			int row = Integer.parseInt(msgString.charAt(0)+"");
+			int col = Integer.parseInt(msgString.charAt(1)+"");
 			if(isXTurn){
-				if(!client.getInetAddress().getHostAddress().equals(SubscribersList.getFirst().getClient().getInetAddress().getHostAddress())){
+				if(!client.equals(SubscribersList.getFirst().getClient())){
 					return;
 				}
 				currentPlayer = "X";
 			}else{
-				if(!client.getInetAddress().getHostAddress().equals(SubscribersList.get(1).getClient().getInetAddress().getHostAddress())){
+				if(!client.equals(SubscribersList.get(1).getClient())){
 					return;
 				}
 				currentPlayer = "O";
 			}
 			if (board[row][col] != null) return;
-			if (checkWinner(currentPlayer)) {
-				sendToAllClients("Player " + currentPlayer + " Wins!"+msgString.charAt(0)+msgString.charAt(1));
-				return;
-			} else if (isBoardFull()) {
-				sendToAllClients("It's a Draw!"+msgString.charAt(0)+msgString.charAt(1)+currentPlayer);
+			if (isBoardFull()) {
+				sendToAllClients("It's a Draw!".concat(msgString).concat(currentPlayer));
 				return;
 			}
-			sendToAllClients(msgString.charAt(0)+msgString.charAt(1)+currentPlayer);
+			msgString = msgString.concat(currentPlayer);
+			sendToAllClients(msgString);
 			board[row][col] = currentPlayer;
-			return;
+			isXTurn=!isXTurn;
+			if(currentPlayer.equals("X")){
+				sendToAllClients("O");
+			}else{
+				sendToAllClients("X");
+			}
+			if (checkWinner(currentPlayer)) {
+				sendToAllClients("Player ".concat(currentPlayer ).concat( " Wins!").concat(msgString));
+				return;
+			} else
+				return;
 		}
 	}
 	private boolean checkWinner(String player) {
