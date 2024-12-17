@@ -19,7 +19,7 @@ public class SimpleClient extends AbstractClient {
 	@Override
 	protected void handleMessageFromServer(Object msg) throws IOException {
 		System.out.println(msg.toString());
-
+		//test
 		if (msg instanceof Warning) {
 			EventBus.getDefault().post(msg); // Post the Warning directly
 		} else if (msg.toString().startsWith("Start")) {
