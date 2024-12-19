@@ -8,7 +8,7 @@
 
 <VBox alignment="CENTER" prefHeight="200.0" prefWidth="300.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PrimaryController">
    <children>
-      <Label text="Welcome! Please enter your IP and socket:" />
+      <Label fx:id="label" text="Welcome! Please enter your IP and socket:" />
       <TextField fx:id="ipField" promptText="IP Address" />
       <TextField fx:id="socketField" promptText="Socket" />
       <Button text="Submit" onAction="#handleSubmit" />

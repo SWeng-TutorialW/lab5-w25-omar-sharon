@@ -17,14 +17,21 @@ public class SimpleClient extends AbstractClient {
 	}
 
 	@Override
-	protected void handleMessageFromServer(Object msg) throws IOException {
+	protected void handleMessageFromServer(Object msg) {
 		System.out.println(msg.toString());
 		//test
 		if (msg instanceof Warning) {
 			EventBus.getDefault().post(msg); // Post the Warning directly
-		} else if (msg.toString().startsWith("Start")) {
-			SecondaryController.switchTogame();
-			EventBus.getDefault().post("StartGame");
+		} else if (msg.toString().startsWith("client")) {
+			return;
+		} else if (msg.toString().equals("Start1")) {
+			EventBus.getDefault().post("Start1");
+		} else if (msg.toString().equals("Start")) {
+			EventBus.getDefault().post("Start");
+		} else if (msg.toString().equals("Your Turn")) {
+			EventBus.getDefault().post("Your Turn");
+		} else if (msg.toString().equals("Opponent Turn")) {
+			EventBus.getDefault().post("Opponent Turn");
 		} else if (msg.toString().startsWith("Player") || msg.toString().equals("X") || msg.toString().equals("O")) {
 			EventBus.getDefault().post(msg); // Post status updates directly
 		} else {

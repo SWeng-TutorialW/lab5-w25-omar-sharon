@@ -7,7 +7,11 @@ public class SecondaryController {
 
     @FXML
     public static void switchTogame() throws IOException {
-        App.setRoot("game");
+        try{
+            App.setRoot("game");
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

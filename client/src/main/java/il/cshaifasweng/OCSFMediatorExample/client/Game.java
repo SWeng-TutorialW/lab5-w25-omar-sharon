@@ -25,6 +25,7 @@ public class Game {
         EventBus.getDefault().register(this);
     }
 
+
     @FXML
     private void handleButtonClick(javafx.event.ActionEvent event) {
         Button clickedButton = (Button) event.getSource();
@@ -45,12 +46,43 @@ public class Game {
             if (msg instanceof String) {
                 String message = msg.toString();
 
-                if (message.equals("StartGame")) {
-                    statusLabel.setText("Game Started!");
+                if (message.equals("Start1")) {
+                    try {
+                        SecondaryController.switchTogame();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                } else if (message.equals("Start")) {
+                    try {
+                        SecondaryController.switchTogame();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else if (message.equals("Opponent Turn")) {
+                    setStatusLabel("Opponent Turn");
+                    disableBoard();
+                } else if (message.equals("Your Turn")) {
+                    setStatusLabel("Your Turn");
+                    enableBoard();
                 } else if (message.equals("X") || message.equals("O")) {
-                    statusLabel.setText("Player " + message + "'s Turn");
-                } else if (message.startsWith("Player") || message.contains("Draw")) {
-                    statusLabel.setText(message);
+                    if ("Your Turn".equals(statusLabel.getText())) {
+                        setStatusLabel("Opponent Turn");
+                        disableBoard();
+                    } else {
+                        setStatusLabel("Your Turn");
+                        enableBoard();
+                    }
+                } else if (message.contains("Draw")) {
+                    setStatusLabel(message);
+                    disableBoard();
+                } else if (message.startsWith("Player")) {
+                    if ("Your Turn".equals(statusLabel.getText())) {
+                        setStatusLabel("You Win!!");
+                    } else {
+                        setStatusLabel("You Lose");
+                    }
+                    disableBoard();
                 }
             } else if (msg instanceof Object[]) { // Board update
                 Object[] update = (Object[]) msg;
@@ -62,6 +94,32 @@ public class Game {
         });
     }
 
+
+    private void setStatusLabel(String statusText) {
+       statusLabel.setText(statusText);
+    }
+    private void disableBoard() {
+        button00.setDisable(true);
+        button01.setDisable(true);
+        button02.setDisable(true);
+        button10.setDisable(true);
+        button11.setDisable(true);
+        button12.setDisable(true);
+        button20.setDisable(true);
+        button21.setDisable(true);
+        button22.setDisable(true);
+    }
+    private void enableBoard() {
+        button00.setDisable(false);
+        button01.setDisable(false);
+        button02.setDisable(false);
+        button10.setDisable(false);
+        button11.setDisable(false);
+        button12.setDisable(false);
+        button20.setDisable(false);
+        button21.setDisable(false);
+        button22.setDisable(false);
+    }
     public static Game getGame() {
         if (game == null) {
             game = new Game();
@@ -70,6 +128,7 @@ public class Game {
     }
 
     private void setGame(int row, int col, String operation) {
+        System.out.format("the rows is "+row+"the col is "+col+"\n");
         board[row][col] = operation;
         if (row == 0 && col == 0) button00.setText(operation);
         else if (row == 0 && col == 1) button01.setText(operation);
