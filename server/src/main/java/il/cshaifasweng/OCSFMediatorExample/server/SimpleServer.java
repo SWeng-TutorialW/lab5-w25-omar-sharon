@@ -21,7 +21,7 @@ public class SimpleServer extends AbstractServer {
 	}
 
 	@Override
-	protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
+	protected void handleMessageFromClient(Object msg, ConnectionToClient client){
 		String msgString = msg.toString();
 		if (msgString.startsWith("#warning")) {
 			Warning warning = new Warning("Warning from server!");
@@ -46,6 +46,7 @@ public class SimpleServer extends AbstractServer {
 				for(SubscribedClient subscribedClient: SubscribersList){
 					if(subscribedClient.getClient().equals(client)){
 						SubscribersList.remove(subscribedClient);
+						clientCounter--;
 						break;
 					}
 				}
@@ -57,14 +58,25 @@ public class SimpleServer extends AbstractServer {
 				return ;
 			} else if (clientCounter==1) {
 				clientCounter++;
-				sendToAllClients("Start");
+				try{
+					SubscribersList.getFirst().getClient().sendToClient("Start1");
+					SubscribersList.getLast().getClient().sendToClient("Start");
+					try{
+						wait(1500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					SubscribersList.getFirst().getClient().sendToClient("Your Turn");
+					SubscribersList.getLast().getClient().sendToClient("Opponent Turn");
+				}catch (IOException e) {
+					e.printStackTrace();
+				}
 				System.out.format("the game started\n");
-				return ;
 			}
 		} else{
 			System.out.format(msgString+"\n");
-			int row = Integer.parseInt(msgString.charAt(0)+"");
-			int col = Integer.parseInt(msgString.charAt(1)+"");
+			int row = Integer.parseInt(String.valueOf(msgString.charAt(0))); // Convert the first character to an integer
+			int col = Integer.parseInt(String.valueOf(msgString.charAt(1)));
 			if(isXTurn){
 				if(!client.equals(SubscribersList.getFirst().getClient())){
 					return;
@@ -77,24 +89,24 @@ public class SimpleServer extends AbstractServer {
 				currentPlayer = "O";
 			}
 			if (board[row][col] != null) return;
-			if (isBoardFull()) {
-				sendToAllClients("It's a Draw!".concat(msgString).concat(currentPlayer));
-				return;
-			}
+			if(checkWinner("X")||checkWinner("O"))return;
 			msgString = msgString.concat(currentPlayer);
 			sendToAllClients(msgString);
 			board[row][col] = currentPlayer;
 			isXTurn=!isXTurn;
+
+			if (checkWinner(currentPlayer)) {
+				sendToAllClients("Player ".concat(currentPlayer ).concat( " Wins!").concat(msgString));
+				return;
+			}else if (isBoardFull()) {
+				sendToAllClients("It's a Draw!".concat(msgString).concat(currentPlayer));
+				return;
+			}
 			if(currentPlayer.equals("X")){
 				sendToAllClients("O");
 			}else{
 				sendToAllClients("X");
 			}
-			if (checkWinner(currentPlayer)) {
-				sendToAllClients("Player ".concat(currentPlayer ).concat( " Wins!").concat(msgString));
-				return;
-			} else
-				return;
 		}
 	}
 	private boolean checkWinner(String player) {

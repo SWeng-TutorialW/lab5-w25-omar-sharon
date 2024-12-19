@@ -530,7 +530,7 @@ public abstract class AbstractServer implements Runnable
    *  sent the message.
    */
   protected abstract void handleMessageFromClient(
-    Object msg, ConnectionToClient client);
+    Object msg, ConnectionToClient client) throws IOException;
 
 
 // METHODS TO BE USED FROM WITHIN THE FRAMEWORK ONLY ----------------
@@ -550,7 +550,11 @@ public abstract class AbstractServer implements Runnable
   final synchronized void receiveMessageFromClient(
     Object msg, ConnectionToClient client)
   {
-    this.handleMessageFromClient(msg, client);
+    try {
+      this.handleMessageFromClient(msg, client);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
 // End of AbstractServer Class
